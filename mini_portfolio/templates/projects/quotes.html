@@ -1,0 +1,233 @@
+{% extends "base.html" %}
+
+{% block head %}
+<style>
+    .quote-container {
+        max-width: 700px;
+        margin: 0 auto;
+    }
+    
+    .quote-card {
+        background-color: #f8f9fa;
+        border-radius: 15px;
+        padding: 40px;
+        position: relative;
+    }
+    
+    .quote-text {
+        font-size: 1.8rem;
+        font-weight: 500;
+        font-style: italic;
+        line-height: 1.6;
+        margin-bottom: 20px;
+    }
+    
+    .quote-author {
+        font-size: 1.2rem;
+        font-weight: 400;
+        text-align: right;
+        color: #6c757d;
+    }
+    
+    .quote-icon {
+        position: absolute;
+        top: 20px;
+        left: 20px;
+        opacity: 0.1;
+        font-size: 5rem;
+    }
+    
+    .controls {
+        display: flex;
+        justify-content: center;
+        gap: 15px;
+        margin-top: 40px;
+    }
+    
+    .btn-lg {
+        padding: 10px 25px;
+        font-size: 1.1rem;
+    }
+    
+    .btn-twitter {
+        background-color: #1DA1F2;
+        color: white;
+    }
+    
+    .btn-twitter:hover {
+        background-color: #0d8bd9;
+        color: white;
+    }
+    
+    .fade-in {
+        animation: fadeIn 0.5s ease-in;
+    }
+    
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(20px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="quote-container">
+    <div class="text-center mb-5">
+        <h2 class="fw-bold"><i class="fas fa-quote-left me-2"></i>Random Quote Generator</h2>
+        <p class="text-muted">Get inspired with quotes from famous personalities</p>
+    </div>
+    
+    <div class="quote-card shadow-sm mb-4 fade-in" id="quote-card">
+        <i class="fas fa-quote-left quote-icon"></i>
+        <div class="quote-text" id="quote-text">The greatest glory in living lies not in never falling, but in rising every time we fall.</div>
+        <div class="quote-author" id="quote-author">- Nelson Mandela</div>
+    </div>
+    
+    <div class="controls">
+        <button class="btn btn-primary btn-lg" id="new-quote">
+            <i class="fas fa-random me-1"></i> New Quote
+        </button>
+
+    </div>
+</div>
+
+<script>
+    // DOM Elements
+    const quoteText = document.getElementById('quote-text');
+    const quoteAuthor = document.getElementById('quote-author');
+    const quoteCard = document.getElementById('quote-card');
+    const newQuoteBtn = document.getElementById('new-quote');
+    const tweetBtn = document.getElementById('tweet-quote');
+    
+const quotes = [
+    { text: "Arise, awake, and stop not till the goal is reached.", author: "Swami Vivekananda" },
+    { text: "You must be the change you wish to see in the world.", author: "Mahatma Gandhi" },
+    { text: "A person is but the product of their thoughts. What they think, they become.", author: "Mahatma Gandhi" },
+    { text: "Take up one idea. Make that one idea your life.", author: "Swami Vivekananda" },
+    { text: "Be so busy improving yourself that you have no time to criticize others.", author: "Chetan Bhagat" },
+    { text: "Dream, dream, dream. Dreams transform into thoughts and thoughts result in action.", author: "Dr. A.P.J. Abdul Kalam" },
+    { text: "If you want to shine like a sun, first burn like a sun.", author: "Dr. A.P.J. Abdul Kalam" },
+    { text: "Man needs his difficulties because they are necessary to enjoy success.", author: "Dr. A.P.J. Abdul Kalam" },
+    { text: "Don't take rest after your first victory, because if you fail in second, more lips are waiting to say that your first victory was just luck.", author: "Dr. A.P.J. Abdul Kalam" },
+    { text: "Education is the most powerful weapon which you can use to change the world.", author: "Narendra Modi" },
+    { text: "Success is when your signature becomes an autograph.", author: "Dr. A.P.J. Abdul Kalam" },
+    { text: "India has no dearth of brave young men and women and if they get the opportunity and help then we can compete with other nations in space exploration and one of them will fulfil her dreams.", author: "Kalpana Chawla" },
+    { text: "Science is a beautiful gift to humanity; we should not distort it.", author: "Dr. A.P.J. Abdul Kalam" },
+    { text: "We are what our thoughts have made us; so take care what you think.", author: "Swami Vivekananda" },
+    { text: "Learning gives creativity, creativity leads to thinking, thinking provides knowledge, and knowledge makes you great.", author: "Dr. A.P.J. Abdul Kalam" },
+    { text: "Forget the past, for it is gone from your domain. Forget the future, for it is beyond your reach. Control the present. Live supremely well now.", author: "Chanakya" },
+    { text: "Before you start some work, always ask yourself three questions – Why am I doing it, What the results might be, and Will I be successful. Only when you think deeply and find satisfactory answers to these questions, go ahead.", author: "Chanakya" },
+    { text: "He who is overly attached to his family members experiences fear and sorrow.", author: "Chanakya" },
+    { text: "A man is great by deeds, not by birth.", author: "Chanakya" },
+    { text: "Even if a snake is not poisonous, it should pretend to be venomous.", author: "Chanakya" },
+    { text: "Faith is of no avail in absence of strength. Faith and strength, both are essential to accomplish any great work.", author: "Sardar Vallabhbhai Patel" },
+    { text: "Take to the path of dharma — the path of truth and justice. Don't misuse your power.", author: "Sardar Vallabhbhai Patel" },
+    { text: "Freedom is not worth having if it does not include the freedom to make mistakes.", author: "Mahatma Gandhi" },
+    { text: "It is easy to kill individuals, but you cannot kill the ideas. Great empires crumbled, while the ideas survived.", author: "Bhagat Singh" },
+    { text: "They may kill me, but they cannot kill my ideas. They can crush my body, but they will not be able to crush my spirit.", author: "Bhagat Singh" },
+    { text: "Patriotism is not a mere sentiment. It is a way of life.", author: "Lal Bahadur Shastri" },
+    { text: "Jai Jawan Jai Kisan.", author: "Lal Bahadur Shastri" },
+    { text: "Do not underestimate the power of your vision to change the world.", author: "Arunachalam Muruganantham" },
+    { text: "I’m not a genius. I’m an average man who persevered.", author: "Arunachalam Muruganantham" },
+    { text: "Live as if you were to die tomorrow. Learn as if you were to live forever.", author: "Mahatma Gandhi" },
+    { text: "The more we sweat in peace the less we bleed in war.", author: "Vikram Batra" },
+    { text: "Either I will come back after hoisting the Tricolor, or I will come back wrapped in it, but I will be back for sure.", author: "Vikram Batra" },
+    { text: "There is nothing impossible for those who will try.", author: "Dr. B.R. Ambedkar" },
+    { text: "Life should be great rather than long.", author: "Dr. B.R. Ambedkar" },
+    { text: "Cultivation of mind should be the ultimate aim of human existence.", author: "Dr. B.R. Ambedkar" },
+    { text: "Work hard in silence, let success make the noise.", author: "Hima Das" },
+    { text: "No struggle can ever succeed without women participating side by side with men.", author: "Muhammad Ali Jinnah" },
+    { text: "Our nation is like a tree of which the original trunk is swarajya and the branches are swadeshi and boycott.", author: "Bal Gangadhar Tilak" },
+    { text: "Swaraj is my birthright, and I shall have it!", author: "Bal Gangadhar Tilak" },
+    { text: "You may be gone, but your work lives on.", author: "Kiran Bedi" },
+    { text: "Nothing can dim the light which shines from within.", author: "Ratan Tata" },
+    { text: "I don't believe in taking right decisions. I take decisions and then make them right.", author: "Ratan Tata" },
+    { text: "Ups and downs in life are very important to keep us going, because a straight line even in an ECG means we are not alive.", author: "Ratan Tata" },
+    { text: "Don't be serious, be sincere.", author: "Kiran Bedi" },
+    { text: "You have to dream before your dreams can come true.", author: "Dr. A.P.J. Abdul Kalam" },
+    { text: "Let us sacrifice our today so that our children can have a better tomorrow.", author: "Dr. A.P.J. Abdul Kalam" },
+    { text: "Excellence happens not by accident. It is a process.", author: "Dr. A.P.J. Abdul Kalam" },
+    { text: "One individual may die for an idea, but that idea will, after his death, incarnate itself in a thousand lives.", author: "Subhas Chandra Bose" },
+    { text: "Give me blood and I will give you freedom!", author: "Subhas Chandra Bose" },
+    { text: "Success is not measured by money, it’s measured by how you influence others positively.", author: "Sushmita Sen" },
+    { text: "People often say that motivation doesn’t last. Well, neither does bathing — that’s why we recommend it daily.", author: "Zakir Khan" },
+    { text: "I don’t believe in luck, I believe in hard work.", author: "Mary Kom" },
+    { text: "Never buy gold, always earn it.", author: "Mehuli Ghosh" },
+    { text: "It's not about being the best. It's about being better than you were yesterday.", author: "PV Sindhu" },
+    { text: "Fear and doubt kill more dreams than failure ever will.", author: "Saina Nehwal" },
+    { text: "Discipline is the bridge between goals and accomplishment.", author: "Neeraj Chopra" },
+    { text: "I never dreamed about success. I worked for it.", author: "Hima Das" },
+    { text: "Confidence and hard work is the best medicine to kill the disease called failure.", author: "Dr. A.P.J. Abdul Kalam" },
+    { text: "If you believe in something, work nights and weekends, it won’t feel like work.", author: "Narayana Murthy" },
+    { text: "Progress is often equal to the difference between mind and mindset.", author: "Narayana Murthy" },
+    { text: "Vision without action is merely a dream. Action without vision just passes time. Vision with action can change the world.", author: "Kiran Mazumdar-Shaw" },
+    { text: "Leadership is about making others better as a result of your presence.", author: "Indra Nooyi" },
+    { text: "Never lose hope, never give up. You never know what tomorrow holds.", author: "Milkha Singh" },
+    { text: "When you run, you have to leave everything behind – even your fears.", author: "Milkha Singh" },
+    { text: "Chase excellence, success will follow.", author: "Aamir Khan (from '3 Idiots')" },
+    { text: "If you don’t build your dream, someone else will hire you to build theirs.", author: "Dhirubhai Ambani" },
+    { text: "Think big, think fast, think ahead. Ideas are no one’s monopoly.", author: "Dhirubhai Ambani" },
+    { text: "Don’t dream of becoming something overnight. Work for it day and night.", author: "Sourav Ganguly" },
+    { text: "You don’t play for the crowd. You play for the country.", author: "Mahendra Singh Dhoni" },
+    { text: "Self-belief and hard work will always earn you success.", author: "Virat Kohli" },
+    { text: "People throw stones at you, and you convert them into milestones.", author: "Sachin Tendulkar" }
+];
+
+    
+    // Get random quote
+    function getRandomQuote() {
+        return quotes[Math.floor(Math.random() * quotes.length)];
+    }
+    
+    // Display new quote
+    function displayNewQuote() {
+        // Remove animation class
+        quoteCard.classList.remove('fade-in');
+        
+        // Trigger reflow
+        void quoteCard.offsetWidth;
+        
+        // Add animation class back
+        quoteCard.classList.add('fade-in');
+        
+        const quote = getRandomQuote();
+        quoteText.textContent = quote.text;
+        quoteAuthor.textContent = "- " + quote.author;
+        
+        // Log quote view
+        logQuoteView(quote.text);
+    }
+    
+    // Tweet quote
+    function tweetQuote() {
+        const text = encodeURIComponent(`"${quoteText.textContent}" - ${quoteAuthor.textContent}`);
+        const url = `https://twitter.com/intent/tweet?text=${text}`;
+        window.open(url, '_blank');
+    }
+    
+    // Log quote view to database
+    async function logQuoteView(quoteText) {
+        try {
+            const response = await fetch('/api/log_quote', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ quote: quoteText })
+            });
+            
+            if (!response.ok) throw new Error('Failed to log quote');
+        } catch (error) {
+            console.error('Error logging quote:', error);
+        }
+    }
+    
+    // Event Listeners
+    newQuoteBtn.addEventListener('click', displayNewQuote);
+    tweetBtn.addEventListener('click', tweetQuote);
+    
+    // Initial quote
+    displayNewQuote();
+    
+    // Auto-refresh every 30 seconds
+    setInterval(displayNewQuote, 30000);
+</script>
+{% endblock %}

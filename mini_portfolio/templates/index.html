@@ -1,0 +1,131 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="container">
+            <div class="hero-content">
+                <h1>Explore Interactive Web Applications</h1>
+                <p>Discover a collection of useful tools and applications</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Project Grid -->
+    <div id="projects" class="projects-grid">
+        <div class="section-title">
+            <h2>Featured Projects</h2>
+            <p class="text-muted">Click on any project to explore its functionality</p>
+        </div>
+
+        <div class="row g-4">
+            <!-- Project Cards -->
+            <div class="col-md-4">
+                <div class="card project-card h-100">
+                    <div class="project-header" style="background: linear-gradient(135deg, var(--primary) 0%, #2a3f9d 100%);">
+                        <i class="fas fa-calculator floating"></i>
+                        <h5 class="mb-0">Calculator</h5>
+                    </div>
+                    <div class="card-body">
+                        <p>A fully functional calculator with basic and scientific modes, history tracking, and responsive design.</p>
+                        <div class="d-grid mt-auto">
+                            <a href="/calculator" class="btn btn-outline-primary btn-outline-custom">Open Project</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="card project-card h-100">
+                    <div class="project-header" style="background: linear-gradient(135deg, #17a2b8 0%, #0c6575 100%);">
+                        <i class="fas fa-lock floating"></i>
+                        <h5 class="mb-0">Password Strength</h5>
+                    </div>
+                    <div class="card-body">
+                        <p>Check and improve your password security with real-time analysis and strength suggestions.</p>
+                        <div class="d-grid mt-auto">
+                            <a href="/password-strength" class="btn btn-outline-info btn-outline-custom">Open Project</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="card project-card h-100">
+                    <div class="project-header" style="background: linear-gradient(135deg, var(--success) 0%, #0d8a5f 100%);">
+                        <i class="fas fa-tasks floating"></i>
+                        <h5 class="mb-0">To-Do List</h5>
+                    </div>
+                    <div class="card-body">
+                        <p>Task manager with database persistence, filtering options, due dates, and priority settings.</p>
+                        <div class="d-grid mt-auto">
+                            <a href="/todo" class="btn btn-outline-success btn-outline-custom">Open Project</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="card project-card h-100">
+                    <div class="project-header" style="background: linear-gradient(135deg, #ffc107 0%, #e0a800 100%);">
+                        <i class="fas fa-sticky-note floating"></i>
+                        <h5 class="mb-0">Notes App</h5>
+                    </div>
+                    <div class="card-body">
+                        <p>Create and manage notes with rich text formatting, categories, and search functionality.</p>
+                        <div class="d-grid mt-auto">
+                            <a href="/notes" class="btn btn-outline-warning btn-outline-custom">Open Project</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="card project-card h-100">
+                    <div class="project-header" style="background: linear-gradient(135deg, #dc3545 0%, #a71d2a 100%);">
+                        <i class="fas fa-stopwatch floating"></i>
+                        <h5 class="mb-0">Stopwatch</h5>
+                    </div>
+                    <div class="card-body">
+                        <p>Precision stopwatch with lap functionality, time tracking, and export capabilities.</p>
+                        <div class="d-grid mt-auto">
+                            <a href="/stopwatch" class="btn btn-outline-danger btn-outline-custom">Open Project</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="card project-card h-100">
+                    <div class="project-header" style="background: linear-gradient(135deg, var(--secondary) 0%, #5a6268 100%);">
+                        <i class="fas fa-quote-left floating"></i>
+                        <h5 class="mb-0">Quote Generator</h5>
+                    </div>
+                    <div class="card-body">
+                        <p>Inspirational quotes with sharing functionality, favorites, and daily motivation.</p>
+                        <div class="d-grid mt-auto">
+                            <a href="/quotes" class="btn btn-outline-secondary btn-outline-custom">Open Project</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block scripts %}
+    <script>
+        // Simple animation for project icons on hover
+        document.querySelectorAll('.project-card').forEach(card => {
+            card.addEventListener('mouseenter', function() {
+                const icon = this.querySelector('.floating');
+                if (icon) {
+                    icon.style.animation = 'none';
+                    setTimeout(() => {
+                        icon.style.animation = 'float 3s ease-in-out infinite';
+                    }, 10);
+                }
+            });
+        });
+    </script>
+{% endblock %}

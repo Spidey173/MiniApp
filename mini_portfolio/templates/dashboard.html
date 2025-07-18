@@ -1,0 +1,167 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2 class="fw-bold"><i class="fas fa-chart-line me-2"></i>Projects Analytics Dashboard</h2>
+    <span class="badge bg-info">Database Powered</span>
+</div>
+
+<div class="row mb-4">
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card border-left-primary shadow h-100 py-2">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs fw-bold text-primary text-uppercase mb-1">
+                            Total Projects
+                        </div>
+                        <div class="h5 mb-0 fw-bold text-gray-800">6</div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="fas fa-code fa-2x text-gray-300"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card border-left-success shadow h-100 py-2">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs fw-bold text-success text-uppercase mb-1">
+                            Total Views
+                        </div>
+                        <div class="h5 mb-0 fw-bold text-gray-800">{{ total_views }}</div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="fas fa-eye fa-2x text-gray-300"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card border-left-info shadow h-100 py-2">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs fw-bold text-info text-uppercase mb-1">
+                            Calculations Performed
+                        </div>
+                        <div class="h5 mb-0 fw-bold text-gray-800">{{ calculations_count }}</div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="fas fa-calculator fa-2x text-gray-300"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card border-left-warning shadow h-100 py-2">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs fw-bold text-warning text-uppercase mb-1">
+                            Active Tasks
+                        </div>
+                        <div class="h5 mb-0 fw-bold text-gray-800">{{ active_tasks }}</div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="fas fa-tasks fa-2x text-gray-300"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="card shadow mb-4">
+    <div class="card-header py-3">
+        <h6 class="m-0 fw-bold text-primary">Project Usage Statistics</h6>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-bordered">
+                <thead class="table-light">
+                    <tr>
+                        <th>Project Name</th>
+                        <th>Views</th>
+                        <th>Last Accessed</th>
+                        <th>Popularity</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for project in projects %}
+                    <tr>
+                        <td>{{ project.name }}</td>
+                        <td>{{ project.views }}</td>
+                        <td>{{ project.last_accessed.strftime('%Y-%m-%d %H:%M') if project.last_accessed else 'Never' }}</td>
+                        <td>
+                            <div class="progress">
+                                <div class="progress-bar bg-success" 
+                                     role="progressbar" 
+                                     style="width: {{ (project.views / total_views * 100) if total_views > 0 else 0 }}%">
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-lg-6 mb-4">
+        <div class="card shadow">
+            <div class="card-header py-3">
+                <h6 class="m-0 fw-bold text-primary">Recent Calculations</h6>
+            </div>
+            <div class="card-body">
+                <ul class="list-group list-group-flush">
+                    {% for calc in recent_calculations %}
+                    <li class="list-group-item d-flex justify-content-between">
+                        <span>{{ calc.expression }} =</span>
+                        <strong>{{ calc.result }}</strong>
+                    </li>
+                    {% else %}
+                    <li class="list-group-item text-center text-muted">No calculations yet</li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-lg-6 mb-4">
+        <div class="card shadow">
+            <div class="card-header py-3">
+                <h6 class="m-0 fw-bold text-primary">System Information</h6>
+            </div>
+            <div class="card-body">
+                <div class="row mb-3">
+                    <div class="col-sm-4 fw-bold">Database Type:</div>
+                    <div class="col-sm-8">SQLite</div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-sm-4 fw-bold">Backend Framework:</div>
+                    <div class="col-sm-8">Python Flask</div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-sm-4 fw-bold">Database Records:</div>
+                    <div class="col-sm-8">{{ total_records }}</div>
+                </div>
+                <div class="row">
+                    <div class="col-sm-4 fw-bold">Last Updated:</div>
+                    <div class="col-sm-8">{{ current_time.strftime('%Y-%m-%d %H:%M:%S') }}</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

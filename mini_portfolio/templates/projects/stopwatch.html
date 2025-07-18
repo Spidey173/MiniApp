@@ -1,0 +1,266 @@
+{% extends "base.html" %}
+
+{% block head %}
+<style>
+    .stopwatch-container {
+        max-width: 600px;
+        margin: 0 auto;
+    }
+    
+    .display {
+        font-size: 5rem;
+        font-weight: 700;
+        text-align: center;
+        font-family: monospace;
+        margin: 30px 0;
+    }
+    
+    .controls {
+        display: flex;
+        justify-content: center;
+        gap: 15px;
+        margin-bottom: 30px;
+    }
+    
+    .btn-lg {
+        padding: 10px 25px;
+        font-size: 1.2rem;
+        border-radius: 50px;
+    }
+    
+    .lap-list {
+        max-height: 300px;
+        overflow-y: auto;
+        border-top: 1px solid #eee;
+        padding-top: 20px;
+    }
+    
+    .lap-item {
+        display: flex;
+        justify-content: space-between;
+        padding: 8px 15px;
+        border-bottom: 1px solid #f0f0f0;
+    }
+    
+    .lap-number {
+        font-weight: bold;
+        color: #6c757d;
+    }
+    
+    .lap-time {
+        font-family: monospace;
+    }
+    
+    .best-lap {
+        background-color: rgba(40, 167, 69, 0.1);
+        font-weight: bold;
+    }
+    
+    .worst-lap {
+        background-color: rgba(220, 53, 69, 0.1);
+        font-weight: bold;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="stopwatch-container">
+    <div class="text-center mb-4">
+        <h2 class="fw-bold"><i class="fas fa-stopwatch me-2"></i>Stopwatch & Timer</h2>
+        <p class="text-muted">Precision stopwatch with lap functionality</p>
+    </div>
+    
+    <div class="display" id="display">00:00:00.00</div>
+    
+    <div class="controls">
+        <button class="btn btn-primary btn-lg" id="start-btn">
+            <i class="fas fa-play me-1"></i> Start
+        </button>
+        <button class="btn btn-secondary btn-lg" id="lap-btn" disabled>
+            <i class="fas fa-flag me-1"></i> Lap
+        </button>
+        <button class="btn btn-danger btn-lg" id="reset-btn" disabled>
+            <i class="fas fa-stop me-1"></i> Reset
+        </button>
+    </div>
+    
+    <div class="lap-list" id="lap-list">
+        <div class="text-center text-muted py-4">No laps recorded yet</div>
+    </div>
+</div>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<script>
+    // DOM Elements
+    const display = document.getElementById('display');
+    const startBtn = document.getElementById('start-btn');
+    const lapBtn = document.getElementById('lap-btn');
+    const resetBtn = document.getElementById('reset-btn');
+    const lapList = document.getElementById('lap-list');
+    
+    // Variables
+    let startTime = 0;
+    let elapsedTime = 0;
+    let timerInterval;
+    let laps = [];
+    let isRunning = false;
+    
+    // Format time (hh:mm:ss.ms)
+    function formatTime(milliseconds) {
+        const totalSeconds = milliseconds / 1000;
+        const hours = Math.floor(totalSeconds / 3600);
+        const minutes = Math.floor((totalSeconds % 3600) / 60);
+        const seconds = Math.floor(totalSeconds % 60);
+        const ms = Math.floor((milliseconds % 1000) / 10);
+        
+        return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}.${ms.toString().padStart(2, '0')}`;
+    }
+    
+    // Start the stopwatch
+    function start() {
+        if (!isRunning) {
+            startTime = Date.now() - elapsedTime;
+            timerInterval = setInterval(updateTime, 10);
+            isRunning = true;
+            startBtn.innerHTML = '<i class="fas fa-pause me-1"></i> Pause';
+            startBtn.classList.remove('btn-primary');
+            startBtn.classList.add('btn-warning');
+            lapBtn.disabled = false;
+            resetBtn.disabled = false;
+        } else {
+            clearInterval(timerInterval);
+            isRunning = false;
+            startBtn.innerHTML = '<i class="fas fa-play me-1"></i> Resume';
+            startBtn.classList.remove('btn-warning');
+            startBtn.classList.add('btn-primary');
+        }
+    }
+    
+    // Update the display
+    function updateTime() {
+        const currentTime = Date.now();
+        elapsedTime = currentTime - startTime;
+        display.textContent = formatTime(elapsedTime);
+    }
+    
+function recordLap() {
+    if (!isRunning) return;
+
+    if (laps.length >= 10) {
+        alert("You can record up to 10 laps only.");
+        return;
+    }
+
+    const lapTime = elapsedTime - (laps.length > 0 ? laps[laps.length - 1].total : 0);
+    laps.push({
+        lap: laps.length + 1,
+        time: lapTime,
+        total: elapsedTime
+    });
+
+    renderLaps();
+}
+
+    
+    // Reset the stopwatch
+    function reset() {
+        clearInterval(timerInterval);
+        isRunning = false;
+        elapsedTime = 0;
+        display.textContent = formatTime(elapsedTime);
+        startBtn.innerHTML = '<i class="fas fa-play me-1"></i> Start';
+        startBtn.classList.remove('btn-warning');
+        startBtn.classList.add('btn-primary');
+        lapBtn.disabled = true;
+        resetBtn.disabled = true;
+        laps = [];
+        renderLaps();
+        
+        // Save session to database
+        saveSession();
+    }
+    
+    // Render laps
+    function renderLaps() {
+        if (laps.length === 0) {
+            lapList.innerHTML = '<div class="text-center text-muted py-4">No laps recorded yet</div>';
+            return;
+        }
+        
+        // Find best and worst lap times
+        let bestTime = Infinity;
+        let worstTime = 0;
+        
+        laps.forEach(lap => {
+            if (lap.time < bestTime) bestTime = lap.time;
+            if (lap.time > worstTime) worstTime = lap.time;
+        });
+        
+        lapList.innerHTML = '';
+        laps.forEach(lap => {
+            const lapItem = document.createElement('div');
+            lapItem.className = 'lap-item';
+            
+            if (lap.time === bestTime) {
+                lapItem.classList.add('best-lap');
+            } else if (lap.time === worstTime) {
+                lapItem.classList.add('worst-lap');
+            }
+            
+            lapItem.innerHTML = `
+                <div class="lap-number">Lap ${lap.lap}</div>
+                <div class="lap-time">${formatTime(lap.time)}</div>
+                <div class="lap-total">${formatTime(lap.total)}</div>
+            `;
+            
+            lapList.appendChild(lapItem);
+        });
+    }
+    
+    // Save session to database
+    async function saveSession() {
+        if (laps.length === 0) return;
+        
+        try {
+            const response = await fetch('/api/stopwatch_sessions', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    duration: elapsedTime,
+                    lap_count: laps.length,
+                    best_lap: Math.min(...laps.map(l => l.time)),
+                    worst_lap: Math.max(...laps.map(l => l.time))
+                })
+            });
+            
+            if (!response.ok) throw new Error('Failed to save session');
+            
+            console.log('Session saved successfully');
+        } catch (error) {
+            console.error('Error saving session:', error);
+        }
+    }
+    
+    // Event Listeners
+    startBtn.addEventListener('click', start);
+    lapBtn.addEventListener('click', recordLap);
+    resetBtn.addEventListener('click', reset);
+    
+    // Keyboard shortcuts
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 's' || e.key === 'S') {
+            start();
+        } else if (e.key === 'l' || e.key === 'L') {
+            recordLap();
+        } else if (e.key === 'r' || e.key === 'R') {
+            reset();
+        }
+    });
+</script>
+{% endblock %}
